@@ -8,6 +8,7 @@ import math
 import random
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from chromosome import Chromosome
 
@@ -192,27 +193,52 @@ def select_fittest(population):
     # return population[:mid]
 
 
-def optimize(initial_population, iterations, data_file):
+def avg_fitness(population):
+    """Function to calculate average fitness in a generation.
+
+    Args:
+        population (list): current chromosome population.
+
+    Returns:
+        float: average fitness of population.
+
+    """
+
+    total = len(population)
+    fit_sum = 0
+    for chromosome in population:
+        fit_sum = fit_sum + chromosome.fitness
+
+    return fit_sum/float(total)
+
+
+def optimize(initial_population, iterations, data_file, statistics=False):
     """Function to optimize weight vectors with a Genetic Algorithm.
 
     Args:
         initial_population (int): Initial individuals amount.
         iterations (int): number of iterations.
         data_file (str): path to data file.
+        statistics (bool): if True, generates output file.
 
     Returns:
         list: population from last iteration.
 
     """
 
+    f = open("stat.txt", 'w') if statistics else None
+
     population = create_population(initial_population)
+    f.write(str(avg_fitness(population)) + "\n") if statistics else None
 
     for i in range(iterations):
         add_children(population)
         evaluate_population(population, data_file)
         population = select_fittest(population)
+        f.write(str(avg_fitness(population)) + "\n") if statistics else None
         print "Finished iteration " + str(i + 1)
 
+    f.close() if statistics else None
     return population
 
 
@@ -232,10 +258,17 @@ def get_optimal(population):
 
 
 if __name__ == '__main__':
-    training_data = "Data_Sets\\MSFT_training.csv"
-    testing_data = "Data_Sets\\MSFT_testing.csv"
+    training_data = "Data_Sets\\GOOG_training.csv"
+    testing_data = "Data_Sets\\GOOG_testing.csv"
 
-    optimal = get_optimal(optimize(100, 100, training_data))
+    optimal = get_optimal(optimize(100, 100, training_data, statistics=True))
     print "Training set: " + optimal.to_string()
     evaluate_fitness(optimal, testing_data)
     print "Testing set: " + optimal.to_string()
+
+    df = pd.read_csv('stat.txt', sep=" ", header=None, names=["Avg_fitness"])
+    ax = df.plot(figsize=(8, 6))
+    ax.set_xlabel("Generation")
+    # ax.set_ylabel("Fitness")
+    plt.show()
+    print df
