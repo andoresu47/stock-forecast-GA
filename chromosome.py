@@ -36,6 +36,20 @@ class Chromosome:
 
         self.fitness = fitness
 
+    def to_string(self):
+        """Method to get info from chromosome formatted as string.
+
+        """
+
+        return "w: " + str(self.weights) + ", f: " + str(self.fitness)
+
+    def set_weights(self, weights):
+        """Method to set weights from list parameter.
+
+        """
+
+        self.weights = weights
+
 if __name__ == '__main__':
     c = Chromosome()
     c.set_random_weights()
