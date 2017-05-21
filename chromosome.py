@@ -27,7 +27,7 @@ class Chromosome:
         """
 
         for i in range(len(self.weights)):
-            self.weights[i] = random.randint(0, 1000)
+            self.weights[i] = random.randint(0, 2000)
 
     def set_fitness(self, fitness):
         """Method to set the fitness of a chromosome.

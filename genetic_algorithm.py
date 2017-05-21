@@ -48,7 +48,7 @@ def evaluate_fitness(chromosome, path):
 
     for i in range(len(data) - 1):
         res = evaluate_sigmoid(weights, data[i])
-        prc_diff = data[i+1][3] - data[i][3]
+        prc_diff = data[i + 1][3] - data[i][3]
         if (res == 1 and prc_diff >= 0) or (res == -1 and prc_diff < 0):
             success += 1
         else:
@@ -75,7 +75,7 @@ def evaluate_sigmoid(weights, values):
         weighted_sum += w * v
 
     gamma = weighted_sum - 125000
-    res = 1 - 1/(1 + math.exp(gamma)) if gamma < 0 else 1/(1 + math.exp(-1 * gamma))
+    res = 1 - 1 / (1 + math.exp(gamma)) if gamma < 0 else 1 / (1 + math.exp(-1 * gamma))
 
     if res >= 0.5:
         return 1
@@ -94,7 +94,7 @@ def crossover(chromosome1, chromosome2):
         list: child chromosomes list.
 
     """
-    
+
     # Mutation probability
     p = 0.5
     cut1 = random.randint(0, 3)
@@ -139,7 +139,7 @@ def add_children(population):
     """
 
     random.shuffle(population)
-    mid = int(len(population)/2)
+    mid = int(len(population) / 2)
     half1 = population[:mid]
     half2 = population[mid:]
     for i in range(mid):
@@ -168,22 +168,55 @@ def select_fittest(population):
 
     """
 
-    mid = int(len(population)/2)
+    mid = int(len(population) / 2)
     population.sort(key=lambda x: x.fitness, reverse=True)
     return population[:mid]
 
 
-if __name__ == '__main__':
-    data_file = "C:\\Users\\Andres\\Documents\\UNAM\\Ciencias de la Computacion\\6to semestre\\Inteligencia " \
-           "Artificial\\ProyectoFinal\\Data\\MSFT.csv"
+def optimize(initial_population, iterations, data_file):
+    """Function to optimize weight vectors with a Genetic Algorithm.
 
-    population = create_population(100)
+    Args:
+        initial_population (int): Initial individuals amount.
+        iterations (int): number of iterations.
+        data_file (str): path to data file.
 
-    for i in range(20):
+    Returns:
+        list: population from last iteration.
+
+    """
+
+    population = create_population(initial_population)
+
+    for i in range(iterations):
         add_children(population)
         evaluate_population(population, data_file)
         population = select_fittest(population)
-        print "Finished iteration " + str(i)
+        print "Finished iteration " + str(i + 1)
 
-    for chromosome in population:
-        print chromosome.to_string()
+    return population
+
+
+def get_optimal(population):
+    """Function to get the optimal individual from a list of individuals.
+
+    Args:
+        population (list): List of individuals.
+
+    Returns:
+        Chromosome: optimal individual.
+
+    """
+
+    population.sort(key=lambda x: x.fitness, reverse=True)
+    return population[0]
+
+
+if __name__ == '__main__':
+    training_data = "Data_Sets\\MSFT_training.csv"
+    testing_data = "Data_Sets\\MSFT_testing.csv"
+
+    optimal = get_optimal(optimize(100, 20, training_data))
+    print "Training set: " + optimal.to_string()
+    evaluate_fitness(optimal, testing_data)
+    print "Testing set: " + optimal.to_string()
