@@ -168,9 +168,28 @@ def select_fittest(population):
 
     """
 
-    mid = int(len(population) / 2)
-    population.sort(key=lambda x: x.fitness, reverse=True)
-    return population[:mid]
+    fittest = []
+    for c in range(len(population) / 2):
+        # Random selection probability
+        p = 0.1
+        if random.uniform(0, 1) <= p:
+            rnd_chromosome = population[random.randint(0, len(population) - 1)]
+            fittest.append(rnd_chromosome)
+            population.remove(rnd_chromosome)
+        else:
+            best_chromosome = population[0]
+            # We search for the best in the list
+            for x in population:
+                if x.fitness > best_chromosome.fitness:
+                    best_chromosome = x
+            population.remove(best_chromosome)
+            fittest.append(best_chromosome)
+
+    return fittest
+
+    # mid = int(len(population) / 2)
+    # population.sort(key=lambda x: x.fitness, reverse=True)
+    # return population[:mid]
 
 
 def optimize(initial_population, iterations, data_file):
@@ -216,7 +235,7 @@ if __name__ == '__main__':
     training_data = "Data_Sets\\MSFT_training.csv"
     testing_data = "Data_Sets\\MSFT_testing.csv"
 
-    optimal = get_optimal(optimize(100, 20, training_data))
+    optimal = get_optimal(optimize(100, 100, training_data))
     print "Training set: " + optimal.to_string()
     evaluate_fitness(optimal, testing_data)
     print "Testing set: " + optimal.to_string()
