@@ -13,7 +13,7 @@ from chromosome import Chromosome
 
 
 def create_population(size):
-    """Method to deal with the creation of an initial population.
+    """Function to deal with the creation of an initial population.
 
     Args:
         size (int): Size of the generated population.
@@ -33,7 +33,7 @@ def create_population(size):
 
 
 def evaluate_fitness(chromosome, path):
-    """Method to evaluate a chromosome's fitness.
+    """Function to evaluate a chromosome's fitness.
 
     Args:
         chromosome (Chromosome): chromosome object to evaluate.
@@ -58,7 +58,7 @@ def evaluate_fitness(chromosome, path):
 
 
 def evaluate_sigmoid(weights, values):
-    """Method to evaluate a weighted sum as input for a sigmoid function.
+    """Function to evaluate a weighted sum as input for a sigmoid function.
 
     Args:
         weights (list): weights to evaluate.
@@ -84,15 +84,54 @@ def evaluate_sigmoid(weights, values):
 
 
 def crossover(chromosome1, chromosome2):
+    """Function to generate children from two chromosomes via two point crossover.
+
+    Args:
+        chromosome1 (Chromosome): parent chromosome.
+        chromosome2 (Chromosome): parent chromosome.
+
+    Returns:
+        list: child chromosomes list.
+
+    """
+    
+    # Mutation probability
+    p = 0.5
+    cut1 = random.randint(0, 3)
+    cut2 = random.randint(4, 6)
     child1 = Chromosome()
-    child1.set_random_weights()
     child2 = Chromosome()
-    child2.set_random_weights()
+
+    for i in range(len(chromosome1.weights)):
+        mut1 = random.uniform(0, 1)
+        mut2 = random.uniform(0, 1)
+        if mut1 <= p:
+            # Mutation takes place
+            child1.weights[i] = child1.weights[i] + random.randint(0, 10)
+        else:
+            if i < cut1:
+                child1.weights[i] = chromosome1.weights[i]
+            elif cut1 <= i < cut2:
+                child1.weights[i] = chromosome2.weights[i]
+            else:
+                child1.weights[i] = chromosome1.weights[i]
+
+        if mut2 <= p:
+            # Mutation takes place
+            child2.weights[i] = child2.weights[i] + random.randint(0, 10)
+        else:
+            if i < cut1:
+                child2.weights[i] = chromosome2.weights[i]
+            elif cut1 <= i < cut2:
+                child2.weights[i] = chromosome1.weights[i]
+            else:
+                child2.weights[i] = chromosome2.weights[i]
+
     return [child1, child2]
 
 
 def add_children(population):
-    """Method to generate and append children to current population.
+    """Function to generate and append children to current population.
 
     Args:
         population (list): current chromosome population.
@@ -109,7 +148,7 @@ def add_children(population):
 
 
 def evaluate_population(population, data_file):
-    """Method to evaluate fitness for each chromosome in a population.
+    """Function to evaluate fitness for each chromosome in a population.
 
     Args:
         population (list): current chromosome population.
@@ -122,6 +161,13 @@ def evaluate_population(population, data_file):
 
 
 def select_fittest(population):
+    """Function to select the fittest chromosomes from a given population
+
+    Args:
+        population (list): current chromosome population.
+
+    """
+
     mid = int(len(population)/2)
     population.sort(key=lambda x: x.fitness, reverse=True)
     return population[:mid]
@@ -130,11 +176,10 @@ def select_fittest(population):
 if __name__ == '__main__':
     data_file = "C:\\Users\\Andres\\Documents\\UNAM\\Ciencias de la Computacion\\6to semestre\\Inteligencia " \
            "Artificial\\ProyectoFinal\\Data\\MSFT.csv"
-    iterations = 20
 
     population = create_population(100)
 
-    for i in range(iterations):
+    for i in range(20):
         add_children(population)
         evaluate_population(population, data_file)
         population = select_fittest(population)
